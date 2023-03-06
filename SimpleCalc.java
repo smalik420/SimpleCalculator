@@ -37,7 +37,6 @@ public class SimpleCalc {
 		while (codeRunning) 
 		{
 			runCalc();
-			resetStacks();
 		}
 		
 		System.out.println("\nThanks for using SimpleCalc! Goodbye.\n");
@@ -98,50 +97,54 @@ public class SimpleCalc {
 	public double evaluateExpression(List<String> tokens) 
 	{
 		double ans = 0;
-		
+		System.out.println();
 		for (int i = 0; i < tokens.size(); i++)
 		{
 			String current = tokens.get(i);
 			
-			
 			if (isStringDigit(current) )
 			{
 				valueStack.push(Double.parseDouble(current));
+				System.out.print(current + " ");
+
 			}
 			else
 			{
 				if (operatorStack.isEmpty() )
 				{
 					operatorStack.push(current);
+					System.out.print(current + " ");
 				}
 				else
 				{
-					//true if next operator has higher or same precedence
-					boolean peekPrecedence = hasPrecedence(current, operatorStack.peek());
+					//true if peek operator has higher or same precedence
+					boolean pp = hasPrecedence(current, operatorStack.peek());
 					
-					if (peekPrecedence)
+					if (!pp)
 					{
 						operatorStack.push(current);
+						System.out.print(current + " ");
 					}
-					else
-					{
+					
 						double double1 = valueStack.pop();
 						double double2 = valueStack.pop();
 						String operatorStr = current;
 						operatorStack.pop();
-						double val = runMathEquation(double1, current, double2);
+						double val = runMathEquation(double2, operatorStr, double1);
 						ans += val;
-					}
+						valueStack.push(val);
+						
+						//~ String temp = operatorStack.peek();
+						//~ operatorStack.pop();
+						//~ operatorStack.push(current);
+						//~ operatorStack.push(temp);
+						//~ System.out.print(current + " ");
+
+					
 
 
-				}
-				
-				operatorStack.push(current);
-				
-				
+				}				
 			}
-
-			
 		}
 		
 		
@@ -170,26 +173,26 @@ public class SimpleCalc {
 		{
 			return val1 / val2;
 		}
+		else if (operate.equals("%") )
+		{
+			return val1 % val2;
+		}
+		else if (operate.equals("^") )
+		{
+			for (int i = 0; i < val2; i++)
+			{
+				val1 *= val1;
+			}
+			
+			return val1;
+		}
 		else
 		{
-			System.out.println("INVALID OPERATION");
+			System.out.println("INVALID OPERATION FOUND");
 			return 0;
 		}
 	}
 	
-	public void resetStacks()
-	{
-		while (!operatorStack.isEmpty())
-		{
-			operatorStack.pop();
-		}
-		
-		while (!valueStack.isEmpty())
-		{
-			valueStack.pop();
-		}
-		
-	}
 	
 	/**
 	 *	Precedence of operators
