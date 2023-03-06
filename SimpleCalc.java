@@ -37,6 +37,7 @@ public class SimpleCalc {
 		while (codeRunning) 
 		{
 			runCalc();
+			resetStacks();
 		}
 		
 		System.out.println("\nThanks for using SimpleCalc! Goodbye.\n");
@@ -49,8 +50,15 @@ public class SimpleCalc {
 	public void runCalc() 
 	{
 		String userInput = Prompt.getString("\n");
-		if (userInput.equalsIgnoreCase("h") )			printHelp();
-		else if (userInput.equalsIgnoreCase("q") )	codeRunning = false;
+		
+		if (userInput.equalsIgnoreCase("h") )
+		{
+			printHelp();
+		}
+		else if (userInput.equalsIgnoreCase("q") )	
+		{
+			codeRunning = false;
+		}
 		else
 		{	
 			List<String> expressionTokens = utils.tokenizeExpression(userInput);
@@ -89,60 +97,55 @@ public class SimpleCalc {
 	 */
 	public double evaluateExpression(List<String> tokens) 
 	{
-		double value = 0;
+		double ans = 0;
 		
-		int tPos = 0;
 		for (int i = 0; i < tokens.size(); i++)
 		{
+			String current = tokens.get(i);
 			
-			
-		}
-		
-		
-		
-		while ( !operatorStack.isEmpty() )
-		{
-			String current = tokens.get(tPos);
 			
 			if (isStringDigit(current) )
 			{
 				valueStack.push(Double.parseDouble(current));
-				tPos++;
 			}
 			else
 			{
 				if (operatorStack.isEmpty() )
 				{
 					operatorStack.push(current);
-					tPos++;
 				}
 				else
 				{
-					//if true, then peek has higher or same precedence
+					//true if next operator has higher or same precedence
 					boolean peekPrecedence = hasPrecedence(current, operatorStack.peek());
 					
 					if (peekPrecedence)
 					{
+						operatorStack.push(current);
+					}
+					else
+					{
 						double double1 = valueStack.pop();
 						double double2 = valueStack.pop();
-						String operatorStr = operatorStack.peek();
+						String operatorStr = current;
 						operatorStack.pop();
-						double answer = runMathEquation(double1, current, double2);
-						System.out.println(answer);
-						value += answer;
-						
-						tPos++;
+						double val = runMathEquation(double1, current, double2);
+						ans += val;
 					}
-					
-					operatorStack.push(current);
-					tPos++;
-					
-					
-				}
-			}
-		}
 
-		return value;
+
+				}
+				
+				operatorStack.push(current);
+				
+				
+			}
+
+			
+		}
+		
+		
+		return ans;
 	}
 	
 //	for (int i = 0; i < expressionTokens.size(); i++) {
@@ -169,11 +172,24 @@ public class SimpleCalc {
 		}
 		else
 		{
-			System.out.println("ERROR OCCURED check runMathEquation");
+			System.out.println("INVALID OPERATION");
 			return 0;
 		}
 	}
 	
+	public void resetStacks()
+	{
+		while (!operatorStack.isEmpty())
+		{
+			operatorStack.pop();
+		}
+		
+		while (!valueStack.isEmpty())
+		{
+			valueStack.pop();
+		}
+		
+	}
 	
 	/**
 	 *	Precedence of operators
